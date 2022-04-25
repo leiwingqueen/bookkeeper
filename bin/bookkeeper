@@ -150,6 +150,10 @@ LOGGING_OPTS=$(build_logging_opts ${BOOKIE_LOG_CONF} ${BOOKIE_ROOT_LOG_LEVEL} ${
 BOOKIE_EXTRA_OPTS="${BOOKIE_EXTRA_OPTS} -Dorg.bouncycastle.fips.approved_only=true"
 OPTS="${OPTS} -cp ${BOOKIE_CLASSPATH} ${BOOKIE_OPTS} ${GC_OPTS} ${NETTY_OPTS} ${LOGGING_OPTS} ${BOOKIE_EXTRA_OPTS}"
 
+# remote debug config
+REMOTE_DEBUG_OPTS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"
+OPTS="${OPTS} ${REMOTE_DEBUG_OPTS}"
+
 # Create log dir if it doesn't exist
 if [ ! -d ${BOOKIE_LOG_DIR} ]; then
     mkdir ${BOOKIE_LOG_DIR}
