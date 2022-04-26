@@ -22,22 +22,30 @@
 package org.apache.bookkeeper.bookie;
 
 import static org.apache.bookkeeper.bookie.BookieImpl.METAENTRY_ID_FENCE_KEY;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+
 import java.io.IOException;
 import java.util.PrimitiveIterator.OfLong;
 import java.util.concurrent.CompletableFuture;
+
+import lombok.extern.slf4j.Slf4j;
 import org.apache.bookkeeper.common.util.Watcher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implements a ledger inside a bookie. In particular, it implements operations
  * to write entries to a ledger and read entries from a ledger.
  */
 public abstract class LedgerDescriptor {
+    private static final Logger LOG2 = LoggerFactory.getLogger(LedgerDescriptor.class);
 
     static LedgerDescriptor create(byte[] masterKey,
                                    long ledgerId,
                                    LedgerStorage ledgerStorage) throws IOException {
+        LOG2.info("create ledger...ledgerId:{},ledgerStorage:{}", ledgerId, ledgerStorage.getClass());
         LedgerDescriptor ledger = new LedgerDescriptorImpl(masterKey, ledgerId, ledgerStorage);
         ledgerStorage.setMasterKey(ledgerId, masterKey);
         return ledger;
@@ -64,29 +72,35 @@ public abstract class LedgerDescriptor {
     abstract long getLedgerId();
 
     abstract boolean setFenced() throws IOException;
+
     abstract boolean isFenced() throws IOException, BookieException;
+
     /**
      * When we fence a ledger, we need to first set ledger to fenced state in memory and
      * then log the fence entry in Journal so that we can rebuild the state.
      *
      * <p>We should satisfy the future only after we complete logging fence entry in Journal
+     *
      * @return
      */
     abstract CompletableFuture<Boolean> fenceAndLogInJournal(Journal journal) throws IOException;
 
     abstract long addEntry(ByteBuf entry) throws IOException, BookieException;
+
     abstract ByteBuf readEntry(long entryId) throws IOException, BookieException;
 
     abstract long getLastAddConfirmed() throws IOException, BookieException;
+
     abstract boolean waitForLastAddConfirmedUpdate(long previousLAC,
                                                    Watcher<LastAddConfirmedUpdateNotification> watcher)
-        throws IOException;
+            throws IOException;
+
     abstract void cancelWaitForLastAddConfirmedUpdate(Watcher<LastAddConfirmedUpdateNotification> watcher)
             throws IOException;
 
     abstract void setExplicitLac(ByteBuf entry) throws IOException;
 
-    abstract  ByteBuf getExplicitLac() throws IOException, BookieException;
+    abstract ByteBuf getExplicitLac() throws IOException, BookieException;
 
     abstract OfLong getListOfEntriesOfLedger(long ledgerId) throws IOException;
 }
