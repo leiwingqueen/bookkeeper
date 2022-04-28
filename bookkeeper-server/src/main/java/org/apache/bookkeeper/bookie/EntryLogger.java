@@ -916,6 +916,7 @@ public class EntryLogger {
         File file = findFile(entryLogId);
         // get channel is used to open an existing entry log file
         // it would be better to open using read mode
+        LOG.info("getChannelForLogId...entryLogId:{},file:{}", entryLogId, file.getAbsolutePath());
         FileChannel newFc = new RandomAccessFile(file, "r").getChannel();
         FileChannel oldFc = logid2FileChannel.putIfAbsent(entryLogId, newFc);
         if (null != oldFc) {
