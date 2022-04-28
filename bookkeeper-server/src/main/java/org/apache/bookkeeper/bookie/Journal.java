@@ -944,6 +944,7 @@ public class Journal extends BookieCriticalThread implements CheckpointSource {
                 journalStats.getJournalAddEntryStats(),
                 journalStats.getJournalCbQueueSize(),
                 callbackTime));
+        LOG.info("add entry to queue...entryId:{},ledgerId:{}", entryId, ledgerId);
     }
 
     void forceLedger(long ledgerId, WriteCallback cb, Object ctx) {
@@ -1050,6 +1051,7 @@ public class Journal extends BookieCriticalThread implements CheckpointSource {
                     if (numEntriesToFlush == 0) {
                         journalTime.add(MathUtils.elapsedNanos(busyStartTime));
                         qe = queue.take();
+                        LOG.info("get entry from queue...entryId:{},ledgerId:{}", qe.entryId, qe.ledgerId);
                         dequeueStartTime = MathUtils.nowInNano();
                         busyStartTime = dequeueStartTime;
                         journalStats.getJournalQueueSize().dec();
@@ -1062,6 +1064,7 @@ public class Journal extends BookieCriticalThread implements CheckpointSource {
                             pollWaitTimeNanos = 0;
                         }
                         qe = queue.poll(pollWaitTimeNanos, TimeUnit.NANOSECONDS);
+                        LOG.info("get entry from queue...entryId:{},ledgerId:{}", qe.entryId, qe.ledgerId);
                         dequeueStartTime = MathUtils.nowInNano();
 
                         if (qe != null) {
